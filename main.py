@@ -3,6 +3,36 @@ import matplotlib.pyplot as plt
 from functions import apply_inflation, negotiate_price
 
 
+class Buyer:
+    """ Buyer class representing the buyer's behavior in the negotiation process. """
+    
+    def __init__(self, max_price, expected_price):
+        """ Initializes the buyer's attributes like maximum price, expected price, and surplus. """
+        self.max_price = max_price  # Maximum price the buyer is willing to pay
+        self.expected_price = expected_price  # The buyer's initial price expectation
+        self.total_surplus = 0  # Buyer's total surplus
+        self.days_without_buying = 0  # Days without any purchase
+
+    def adjust_price(self, deal):
+        """ Adjusts the buyer's expected price based on whether a deal was made. """
+        if deal:
+            # If a deal is made, adjust the expected price closer to the deal price
+            self.expected_price += .3 * (deal - self.expected_price)
+        else:
+            # If no deal was made, randomly adjust the expected price upwards
+            noise = random.uniform(-.01, .01)
+            noise += 1.05
+            self.expected_price *= noise
+            self.expected_price *= random.uniform(0.95, 1.05)
+        # Ensure the expected price doesn't exceed the maximum price the buyer is willing to pay
+        if self.expected_price > self.max_price:
+            self.expected_price = self.max_price
+
+    def __str__(self):
+        """ String representation of the buyer's information. """
+        return f"\nMax price:\t{self.max_price}\nExpected price:\t{self.expected_price:.2f}\nSurplus:\t{self.total_surplus:.2f}\n"
+
+
 class Seller:
     """ Seller class representing the seller's behavior in the negotiation process. """
     
@@ -32,36 +62,6 @@ class Seller:
     def __str__(self):
         """ String representation of the seller's information. """
         return f"\nMin price:\t{self.min_price}\nExpected price:\t{self.expected_price:.2f}\nSurplus:\t{self.total_surplus:.2f}\n"
-
-
-class Buyer:
-    """ Buyer class representing the buyer's behavior in the negotiation process. """
-    
-    def __init__(self, max_price, expected_price):
-        """ Initializes the buyer's attributes like maximum price, expected price, and surplus. """
-        self.max_price = max_price  # Maximum price the buyer is willing to pay
-        self.expected_price = expected_price  # The buyer's initial price expectation
-        self.total_surplus = 0  # Buyer's total surplus
-        self.days_without_buying = 0  # Days without any purchase
-
-    def adjust_price(self, deal):
-        """ Adjusts the buyer's expected price based on whether a deal was made. """
-        if deal:
-            # If a deal is made, adjust the expected price closer to the deal price
-            self.expected_price += .3 * (deal - self.expected_price)
-        else:
-            # If no deal was made, randomly adjust the expected price upwards
-            noise = random.uniform(-.01, .01)
-            noise += 1.05
-            self.expected_price *= noise
-            self.expected_price *= random.uniform(0.95, 1.05)
-        # Ensure the expected price doesn't exceed the maximum price the buyer is willing to pay
-        if self.expected_price > self.max_price:
-            self.expected_price = self.max_price
-
-    def __str__(self):
-        """ String representation of the buyer's information. """
-        return f"\nMax price:\t{self.max_price}\nExpected price:\t{self.expected_price:.2f}\nSurplus:\t{self.total_surplus:.2f}\n"
 
 
 def trading_day(sellers, buyers, seller_surplus, buyer_surplus):
@@ -130,10 +130,10 @@ def trading_day(sellers, buyers, seller_surplus, buyer_surplus):
 seller_surplus = 0
 buyer_surplus = 0
 
-# Lists to store all buyers and sellers
-all_buyers = [Buyer(random.triangular(10, 60, 15), random.triangular(5, 55, 15)) for _ in range(107)]
+# Lists to store all buyers and sellers (it's good practice to keep the number of buyers and sellers at least a digit off, so that unsatisfied buyers and unsold sellers don't exactly merge on the graph)
+all_buyers = [Buyer(random.triangular(20, 60, 50), random.triangular(5, 50, 30)) for _ in range(104)]
 
-all_sellers = [Seller(random.triangular(10, 60, 55), random.triangular(5, 55, 15)) for _ in range(105)]
+all_sellers = [Seller(random.triangular(10, 50, 20), random.triangular(5, 55, 30)) for _ in range(105)]
 
 
 avg_prices = []
@@ -212,7 +212,7 @@ def show_unsatisfied(unsold_sellers, unsatisfied_buyers):
 
 
 # Call the plotting functions to display the results
-simulation(300, inflation_rate=.00006, avg_prices=avg_prices, seller_surplus=seller_surplus, buyer_surplus=buyer_surplus, unsold_sellers=unsold_sellers, unsatisfied_buyers=unsatisfied_buyers, seller_surplus_by_day=seller_surplus_by_day, buyer_surplus_by_day=buyer_surplus_by_day)
+simulation(180, inflation_rate=.00006, avg_prices=avg_prices, seller_surplus=seller_surplus, buyer_surplus=buyer_surplus, unsold_sellers=unsold_sellers, unsatisfied_buyers=unsatisfied_buyers, seller_surplus_by_day=seller_surplus_by_day, buyer_surplus_by_day=buyer_surplus_by_day)
 show_average_price(avg_prices)
 show_surplus(seller_surplus_by_day, buyer_surplus_by_day)
 show_unsatisfied(unsold_sellers, unsatisfied_buyers)

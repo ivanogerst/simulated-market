@@ -5,11 +5,13 @@ def apply_inflation(sellers, buyers, base_rate=0.000055, noise_range=0.0005):
         noise = random.uniform(-noise_range, noise_range)
         inflation_factor = 1 + base_rate + noise
         s.min_price *= inflation_factor
+        s.expected_price *= inflation_factor
     
     for b in buyers:
         noise = random.uniform(-noise_range, noise_range)
         inflation_factor = 1 + base_rate + noise
         b.max_price *= inflation_factor
+        b.expected_price *= inflation_factor
 
 
 
